@@ -14,6 +14,7 @@ typedef struct s_flags {
     int plus;
     int zero;
     int hash;
+    int dot;
     int width;
     int precision;
 }   t_flags;

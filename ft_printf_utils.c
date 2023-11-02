@@ -6,7 +6,7 @@
 /*   By: long <long@student.42kl.edu.my>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/02 21:20:19 by long              #+#    #+#             */
-/*   Updated: 2023/11/02 21:21:07 by long             ###   ########.fr       */
+/*   Updated: 2023/11/03 01:49:54 by long             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -45,46 +45,26 @@ char	*ft_htoa(unsigned long long n, int i)
 {
 	int		len;
 	char	*str;
-	int		start;
+	int		num;
 	char	*hex;
 
 	if (n == 0)
 		return (ft_strdup("0"));
-	len = numlen(n, 16);
-	hex = "0123456789abcdef";
+	hex = "0123456789";
 	if (i == 'X')
 		hex = "0123456789ABCDEF";
+	else if (i == 'x' || i == 'p')
+		hex = "0123456789abcdef";
+	num = (int)ft_strlen((const char *)hex);
+	len = numlen(n, num);
 	str = (char *)malloc(sizeof(char) * (len + 1));
 	if (!str)
 		return (0);
 	str[len] = '\0';
-	start = 0;
-	while (--len >= start)
+	while (--len >= 0)
 	{
-		str[len] = hex[(int)(n % 16)];
-		n = n / 16;
-	}
-	return (str);
-}
-
-char	*ft_utoa(unsigned int n)
-{
-	int		len;
-	char	*str;
-	int		start;
-
-	if (n == 0)
-		return (ft_strdup("0"));
-	len = numlen((unsigned long long)n, 10);
-	str = (char *)malloc(sizeof(char) * (len + 1));
-	if (!str)
-		return (0);
-	str[len] = '\0';
-	start = 0;
-	while (--len >= start)
-	{
-		str[len] = n % 10 + '0';
-		n = n / 10;
+		str[len] = hex[(int)(n % num)];
+		n = n / num;
 	}
 	return (str);
 }

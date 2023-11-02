@@ -1,104 +1,114 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   ft_printf.c                                        :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: long <long@student.42kl.edu.my>            +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2023/11/03 01:46:37 by long              #+#    #+#             */
+/*   Updated: 2023/11/03 01:46:45 by long             ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "ft_printf.h"
 
-static int ft_isflag(char i)
+static int	ft_isflag(char i)
 {
-    char    *flags;
-    int     index;
+	char	*flags;
+	int		index;
 
-    flags = "-+ #0";
-    index = -1;
-    while(flags[++index])
-    {
-        if(i == flags[index])
-            return (1);
-    }
-    return (0);
+	flags = "-+ #0";
+	index = -1;
+	while (flags[++index])
+	{
+		if (i == flags[index])
+			return (1);
+	}
+	return (0);
 }
 
-static int ft_print_args(const char *format, int *i, t_flags flag, va_list args)
+static int	ft_print_args(const char *format, int *i, t_flags flag,
+		va_list args)
 {
-    int len;
+	int	len;
 
-    len = 0;
-    flag.type = format[*i];
-    if (format[*i] == '%')
-        len += ft_putchar_len('%');
-    else if (format[*i] == 'c')
-        len += ft_print_char(va_arg(args, int), flag);
-    else if (format[*i] == 's')
-        len += ft_print_str(va_arg(args, char *), flag);
-    else if (format[*i] == 'p')
-        len += ft_print_ptr(va_arg(args, void *), flag);
-    else if (format[*i] == 'd' || format[*i] == 'i')
-        len += ft_print_int(va_arg(args, int), flag);
-    else if (format[*i] == 'u')
-        len += ft_print_hex(va_arg(args, unsigned int), flag);
-    else if (format[*i] == 'X' || format[*i] == 'x')
-        len += ft_print_hex(va_arg(args, unsigned int), flag);
-    return (len);
+	len = 0;
+	flag.type = format[*i];
+	if (format[*i] == '%')
+		len += ft_putchar_len('%');
+	else if (format[*i] == 'c')
+		len += ft_print_char(va_arg(args, int), flag);
+	else if (format[*i] == 's')
+		len += ft_print_str(va_arg(args, char *), flag);
+	else if (format[*i] == 'p')
+		len += ft_print_ptr(va_arg(args, void *), flag);
+	else if (format[*i] == 'd' || format[*i] == 'i')
+		len += ft_print_int(va_arg(args, int), flag);
+	else if (format[*i] == 'X' || format[*i] == 'x' || format[*i] == 'u')
+		len += ft_print_ux(va_arg(args, unsigned int), flag);
+	return (len);
 }
 
-static t_flags ft_check_wp(const char *format, int *i, t_flags flag)
+static t_flags	ft_check_wp(const char *format, int *i, t_flags flag)
 {
-    flag.width = ft_atoi(&format[*i]);
-    while (ft_isdigit(format[*i]))
-        (*i)++;
-    if (format[*i] == '.')
-    {
-        flag.dot = 1;
-        (*i)++;
-        flag.precision = ft_atoi(&format[*i]);
-        while (ft_isdigit(format[*i]))
-            (*i)++;
-    }
-    return (flag);
+	flag.width = ft_atoi(&format[*i]);
+	while (ft_isdigit(format[*i]))
+		(*i)++;
+	if (format[*i] == '.')
+	{
+		flag.dot = 1;
+		(*i)++;
+		flag.precision = ft_atoi(&format[*i]);
+		while (ft_isdigit(format[*i]))
+			(*i)++;
+	}
+	return (flag);
 }
 
-static t_flags ft_check_flags(const char *format, int *i, t_flags flag)
+static t_flags	ft_check_flags(const char *format, int *i, t_flags flag)
 {
-    while(ft_isflag(format[++(*i)]))
-    {
-        if (format[*i] == '-')
-            flag.left = 1;
-        if (format[*i] == '+')
-            flag.plus = 1;
-        if (format[*i] == ' ')
-            flag.space = 1;
-        if (format[*i] == '#')
-            flag.hash = 1;
-        if (format[*i] == '0')
-            flag.zero = 1;
-    }
-    flag = ft_check_wp(format, i, flag);
-    return (flag);
+	while (ft_isflag(format[++(*i)]))
+	{
+		if (format[*i] == '-')
+			flag.left = 1;
+		if (format[*i] == '+')
+			flag.plus = 1;
+		if (format[*i] == ' ')
+			flag.space = 1;
+		if (format[*i] == '#')
+			flag.hash = 1;
+		if (format[*i] == '0')
+			flag.zero = 1;
+	}
+	flag = ft_check_wp(format, i, flag);
+	return (flag);
 }
 
-
-int ft_printf(const char *format, ...)
+int	ft_printf(const char *format, ...)
 {
-    va_list args;
-    t_flags flag;
-    int     i;
-    int     len;
+	va_list	args;
+	t_flags	flag;
+	int		i;
+	int		len;
 
-    if (!format || *format == '\0')
-        return (0);
-    i = -1;
-    len = 0;
-    va_start(args, format);
-    while (format[++i])
-    {
-        if (format[i] == '%')
-        {
-            flag = ft_flags_init();
-            flag = ft_check_flags(format, &i, flag);
-            len += ft_print_args(format, &i, flag, args);
-        }
-        else
-            len += ft_putchar_len(format[i]);
-    }
-    va_end(args);
-    return (len);
+	if (!format || *format == '\0')
+		return (0);
+	i = -1;
+	len = 0;
+	va_start(args, format);
+	while (format[++i])
+	{
+		if (format[i] == '%')
+		{
+			flag = ft_flags_init();
+			flag = ft_check_flags(format, &i, flag);
+			len += ft_print_args(format, &i, flag, args);
+		}
+		else
+			len += ft_putchar_len(format[i]);
+	}
+	va_end(args);
+	return (len);
 }
 
 // int main(void)
@@ -152,7 +162,7 @@ int ft_printf(const char *format, ...)
 //     // ft_printf("%5.7s\n", "Hello");
 //     // ft_printf("%7.7s\n", "Hello");
 //     // ft_printf("%-5s\n", "Hello");
-    
+
 //     // printf("+++++++++++++++++++++++++++++\n");
 //     // printf("%05.2d\n", -2);
 //     // printf("%05.d\n", -2);
@@ -244,7 +254,7 @@ int ft_printf(const char *format, ...)
 //     // printf(" %#x \n", INT_MIN);
 //     // ft_printf(" %#x \n", INT_MIN);
 //     // ft_printf(" %#x \n", LONG_MIN);
-    
+
 //     // printf("%d\n", printf(" %-2d \n", -1));
 //     // printf("%d\n", ft_printf(" %-2d \n", -1));
 
@@ -253,7 +263,7 @@ int ft_printf(const char *format, ...)
 
 //     // printf("%03.0u\n", 0);
 //     // ft_printf("%03.0u\n", 0);
-//     char *null_str = 0; 
+//     char *null_str = 0;
 //     printf("%7s\n", null_str);
 //     ft_printf("%7s\n", null_str);
 //     return (0);

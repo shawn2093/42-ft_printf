@@ -1,12 +1,12 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   ft_print_ptr.c                                     :+:      :+:    :+:   */
+/*   ft_print_num.c                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: long <long@student.42kl.edu.my>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/02 22:01:08 by long              #+#    #+#             */
-/*   Updated: 2023/11/02 23:57:45 by long             ###   ########.fr       */
+/*   Updated: 2023/11/03 01:51:11 by long             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,7 +36,7 @@ int	ft_print_ptr(void *i, t_flags flag)
 	return (len);
 }
 
-static int	ft_printhex_helper(char *str, char *hash, t_flags flag)
+static int	ft_printuxid_helper(char *str, char *icon, t_flags flag)
 {
 	int	len;
 
@@ -44,28 +44,26 @@ static int	ft_printhex_helper(char *str, char *hash, t_flags flag)
 	if (!flag.dot || flag.precision < (int)ft_strlen(str))
 		flag.precision = (int)ft_strlen(str);
 	flag.width -= flag.precision;
+	if (flag.type == 'i' || flag.type == 'd')
+		flag.width -= (int)ft_strlen(icon);
 	flag.precision -= (int)ft_strlen(str);
 	if (!flag.left)
 	{
-		if (flag.zero)
-		{
-			if (flag.dot)
-				len += ft_putpad_len(' ', flag.width);
-			len += ft_putstr_len(hash);
-			if (!flag.dot)
-				len += ft_putpad_len('0', flag.width);
-		}
+		if (flag.zero && !flag.dot)
+			len += (ft_putstr_len(icon) + ft_putpad_len('0', flag.width));
 		else
-			len += (ft_putpad_len(' ', flag.width) + ft_putstr_len(hash));
+			len += (ft_putpad_len(' ', flag.width) + ft_putstr_len(icon));
 	}
+	if (flag.left && (flag.type == 'i' || flag.type == 'd'))
+		len += ft_putstr_len(icon);
 	if (flag.dot)
 		len += ft_putpad_len('0', flag.precision);
-    if (!flag.left)
+	if (!flag.left)
 		return (len + ft_putstr_len(str));
 	return (len + ft_putstr_len(str) + ft_putpad_len(' ', flag.width));
 }
 
-int	ft_print_hex(unsigned int i, t_flags flag)
+int	ft_print_ux(unsigned int i, t_flags flag)
 {
 	int		len;
 	char	*str;
@@ -75,12 +73,7 @@ int	ft_print_hex(unsigned int i, t_flags flag)
 	if (i == 0 && flag.precision == 0)
 		str = ft_strdup("");
 	else
-	{
-		if (flag.type == 'X' || flag.type == 'x')
-			str = ft_htoa((unsigned long long)i, flag.type);
-		else
-			str = ft_utoa(i);
-	}
+		str = ft_htoa((unsigned long long)i, flag.type);
 	if (flag.hash && i != 0 && (flag.type == 'X' || flag.type == 'x'))
 	{
 		flag.width -= 2;
@@ -89,35 +82,34 @@ int	ft_print_hex(unsigned int i, t_flags flag)
 		else
 			hash = "0x";
 	}
-	len = ft_printhex_helper(str, hash, flag);
+	len = ft_printuxid_helper(str, hash, flag);
 	free(str);
 	return (len);
 }
 
-// int	ft_print_hex(unsigned int i, t_flags flag)
-// {
-// 	int		len;
-// 	char	*str;
-// 	char	*hash;
+int	ft_print_int(int i, t_flags flag)
+{
+	int		len;
+	char	*ptr;
+	char	*str;
+	char	*symbol;
 
-// 	hash = "";
-// 	if (i == 0 && flag.precision == 0)
-// 		str = ft_strdup("");
-// 	else
-// 		str = ft_htoa((unsigned long long)i, flag.type);
-// 	if (flag.hash && i != 0)
-// 	{
-// 		flag.width -= 2;
-// 		if (flag.type == 'X')
-// 			hash = "0X";
-// 		else
-// 			hash = "0x";
-// 	}
-// 	if (!flag.dot || flag.precision < (int)ft_strlen(str))
-// 		flag.precision = (int)ft_strlen(str);
-// 	flag.width -= flag.precision;
-// 	flag.precision -= (int)ft_strlen(str);
-// 	len = ft_printhex_helper(str, hash, flag);
-// 	free(str);
-// 	return (len);
-// }
+	symbol = "";
+	if (i == 0 && flag.precision == 0)
+		ptr = ft_strdup("");
+	else
+		ptr = ft_itoa(i);
+	str = ptr;
+	if (flag.space)
+		symbol = " ";
+	if (flag.plus)
+		symbol = "+";
+	if (i < 0)
+	{
+		str++;
+		symbol = "-";
+	}
+	len = ft_printuxid_helper(str, symbol, flag);
+	free(ptr);
+	return (len);
+}

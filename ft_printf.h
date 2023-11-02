@@ -19,17 +19,21 @@ typedef struct s_flags {
     int precision;
 }   t_flags;
 
-int ft_putchar_len(char i);
-int ft_putstr_len(char *i);
-int ft_putpad_len(char i, int len);
-int ft_print_char(char i, t_flags flag);
-int ft_print_str(char *i, t_flags flag);
-
 int ft_print_ptr(void *i, t_flags flag);
 int ft_print_hex(unsigned int i, t_flags flag);
 
 int ft_print_int(int i, t_flags flag);
 int ft_print_uint(unsigned int i, t_flags flag);
+
+t_flags ft_flags_init(void);
+char	*ft_htoa(unsigned long long n, int i);
+char	*ft_utoa(unsigned int n);
+
+int	ft_putchar_len(char i);
+int	ft_putstr_len(char *i);
+int	ft_putpad_len(char i, int len);
+int	ft_print_char(char i, t_flags flag);
+int	ft_print_str(char *i, t_flags flag);
 
 int ft_printf(const char *format, ...);
 

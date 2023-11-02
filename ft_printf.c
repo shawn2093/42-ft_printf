@@ -1,37 +1,6 @@
 #include "ft_printf.h"
 
-t_flags ft_flags_init(void)
-{
-    t_flags a;
-
-    a.type = 0;
-    a.left = 0;
-    a.space = 0;
-    a.plus = 0;
-    a.zero = 0;
-    a.hash = 0;
-    a.dot = 0;
-    a.width = 0;
-    a.precision = 1;
-    return (a);
-}
-
-int ft_istype(char i)
-{
-    char    *type;
-    int     index;
-
-    type = "cspdiuxX";
-    index = -1;
-    while(type[++index])
-    {
-        if(i == type[index])
-            return (1);
-    }
-    return (0);
-}
-
-int ft_isflag(char i)
+static int ft_isflag(char i)
 {
     char    *flags;
     int     index;
@@ -46,7 +15,7 @@ int ft_isflag(char i)
     return (0);
 }
 
-int ft_print_args(const char *format, int *i, t_flags flag, va_list args)
+static int ft_print_args(const char *format, int *i, t_flags flag, va_list args)
 {
     int len;
 
@@ -63,13 +32,13 @@ int ft_print_args(const char *format, int *i, t_flags flag, va_list args)
     else if (format[*i] == 'd' || format[*i] == 'i')
         len += ft_print_int(va_arg(args, int), flag);
     else if (format[*i] == 'u')
-        len += ft_print_uint(va_arg(args, unsigned int), flag);
+        len += ft_print_hex(va_arg(args, unsigned int), flag);
     else if (format[*i] == 'X' || format[*i] == 'x')
         len += ft_print_hex(va_arg(args, unsigned int), flag);
     return (len);
 }
 
-t_flags ft_check_wp(const char *format, int *i, t_flags flag)
+static t_flags ft_check_wp(const char *format, int *i, t_flags flag)
 {
     flag.width = ft_atoi(&format[*i]);
     while (ft_isdigit(format[*i]))
@@ -85,7 +54,7 @@ t_flags ft_check_wp(const char *format, int *i, t_flags flag)
     return (flag);
 }
 
-t_flags ft_check_flags(const char *format, int *i, t_flags flag)
+static t_flags ft_check_flags(const char *format, int *i, t_flags flag)
 {
     while(ft_isflag(format[++(*i)]))
     {

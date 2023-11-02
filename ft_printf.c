@@ -1,121 +1,5 @@
 #include "ft_printf.h"
 
-int ft_putchar_len(char i)
-{
-    ft_putchar_fd(i, 1);
-    return (1);
-}
-
-int ft_putstr_len(char *i)
-{
-    int len;
-
-    len = -1;
-    while (i[++len])
-        ft_putchar_len(i[len]);
-    return ((int) ft_strlen(i));
-}
-
-int ft_putpad_len(char i, t_flags flag)
-{
-    int len;
-
-    len = 0;
-    while(flag.width > 0)
-    {
-        len += ft_putchar_len(i);
-        flag.width--;
-    }
-    return(len);
-}
-
-int ft_print_char(char i, t_flags flag)
-{
-    int len;
-
-    len = 0;
-    flag.width--;
-    if (!flag.left)
-    {
-        len += ft_putpad_len(' ', flag);
-        len += ft_putchar_len(i);
-    }
-    else
-    {
-        len += ft_putchar_len(i);
-        len += ft_putpad_len(' ', flag);
-    }
-    return (len);
-}
-
-int ft_print_str(char *i, t_flags flag)
-{
-    int     len;
-    char    *str;
-
-    len = 0;
-    if (!flag.dot)
-        flag.precision = (int) ft_strlen(i);
-    str = ft_substr((char const *)i, 0, (size_t) flag.precision);
-    flag.width -= flag.precision;
-    if (!flag.left)
-    {
-        len += ft_putpad_len(' ', flag);
-        len += ft_putstr_len(str);
-    }
-    else
-    {
-        len += ft_putstr_len(str);
-        len += ft_putpad_len(' ', flag);
-    }
-    return (len);
-}
-
-int ft_print_int(int i, t_flags flag)
-{
-    int     len;
-    char    *str;
-    char    symbol;
-
-    len = 0;
-    str = ft_substr((char const *)ft_itoa(i), 0, (size_t) flag.precision);
-    symbol = 0;
-    if (flag.space)
-        symbol = ' ';
-    if (flag.plus)
-        symbol = '+';
-    if (i < 0)
-    {
-        str++;
-        symbol = '-';
-    }
-    if (symbol)
-        flag.width--;
-    flag.width -= (int) ft_strlen(str);
-    if (!flag.left)
-    {
-        if (flag.zero)
-        {
-            if (symbol)
-                len += ft_putchar_len(symbol);
-            len += ft_putpad_len('0', flag);
-        }
-        else
-        {
-            len += ft_putpad_len(' ', flag);
-            if (symbol)
-                len += ft_putchar_len(symbol);
-        }
-        len += ft_putstr_len(str);
-    }
-    else
-    {
-        len += ft_putstr_len(str);
-        len += ft_putpad_len(' ', flag);
-    }
-    return (len);
-}
-
 t_flags ft_flags_init(void)
 {
     t_flags a;
@@ -169,13 +53,19 @@ int ft_print_args(const char *format, int *i, t_flags flag, va_list args)
     len = 0;
     flag.type = format[*i];
     if (format[*i] == '%')
-        len += ft_print_char(format[*i], flag);
+        len += ft_putchar_len('%');
     else if (format[*i] == 'c')
         len += ft_print_char(va_arg(args, int), flag);
     else if (format[*i] == 's')
         len += ft_print_str(va_arg(args, char *), flag);
+    else if (format[*i] == 'p')
+        len += ft_print_ptr(va_arg(args, void *), flag);
     else if (format[*i] == 'd' || format[*i] == 'i')
         len += ft_print_int(va_arg(args, int), flag);
+    else if (format[*i] == 'u')
+        len += ft_print_uint(va_arg(args, unsigned int), flag);
+    else if (format[*i] == 'X' || format[*i] == 'x')
+        len += ft_print_hex(va_arg(args, unsigned int), flag);
     return (len);
 }
 
@@ -239,38 +129,163 @@ int ft_printf(const char *format, ...)
             len += ft_putchar_len(format[i]);
     }
     va_end(args);
-    printf("%d\n", len);
     return (len);
 }
 
-int main(void)
-{
-    // printf("%d\n", printf("I am good with 100%-5%!!\n"));
-    // ft_printf("I am good with 100%-5%!!\n");
-    // printf("%d\n", printf("%5c", 'H'));
-    // ft_printf("%5c", 'H');
-    printf("%d\n", printf("%-6.3s\n", "Hello"));
-    ft_printf("%-6.3s\n", "Hello");
-    printf("%d\n", printf("01.%05.2d\n", 0));
-    printf("%d\n", printf("02.%5d\n", -20));
-    printf("%d\n", printf("03.%010.5d\n", -211110));
-    printf("%d\n", printf("04.%.5d\n", 20));
-    printf("%d\n", printf("05.%-5d\n", 20));
-    printf("%d\n", printf("06.%+05d\n", 0));
-    printf("%d\n", printf("07.%+010.5d\n", 20));
-    printf("%d\n", printf("08.%010.5d\n", 20));
-    printf("%d\n", printf("09.% d\n", -20));
-    printf("%d\n", printf("10.%  d\n", 20));
+// int main(void)
+// {
+//     // "-+ #0" "cspdiuxX"
 
-    // ft_printf("01.%05d\n", -20);
-    // ft_printf("02.%5d\n", -20);
-    // ft_printf("03.%.5d\n", -20);
-    // ft_printf("04.%.5d\n", 20);
-    // ft_printf("05.%-5d\n", 20);
-    // ft_printf("06.%+05d\n", 0);
-    // ft_printf("07.%+010.5d\n", 20);
-    // ft_printf("08.%010.5d\n", 20);
-    // ft_printf("09.% d\n", -20);
-    // ft_printf("10.%  d\n", 20);
-    return (0);
-}
+//     // printf("100%%\n");
+//     // printf("100%5%\n");
+//     // printf("100%5.3%\n");
+//     // printf("100%5.7%\n");
+//     // printf("100%05.3%\n");
+//     // printf("100%-5%\n");
+//     // printf("100%+5%\n");
+//     // printf("100% 5%\n");
+//     // printf("100%#5%\n");
+//     // printf("100%05%\n");
+//     // printf("--------------------\n");
+//     // ft_printf("100%%\n");
+//     // ft_printf("100%5%\n");
+//     // ft_printf("100%5.3%\n");
+//     // ft_printf("100%5.7%\n");
+//     // ft_printf("100%05.3%\n");
+//     // ft_printf("100%-5%\n");
+//     // ft_printf("100%+5%\n");
+//     // ft_printf("100% 5%\n");
+//     // ft_printf("100%#5%\n");
+//     // ft_printf("100%05%\n");
+
+//     // printf("+++++++++++++++++++++++++++++\n");
+//     // printf("%c\n", 'H');
+//     // printf("%5c\n", 'H');
+//     // printf("%-5c\n", 'H');
+//     // printf("-----------------------------\n");
+//     // ft_printf("%c\n", 'H');
+//     // ft_printf("%5c\n", 'H');
+//     // ft_printf("%-5c\n", 'H');
+
+//     // printf("+++++++++++++++++++++++++++++\n");
+//     // printf("%s\n", "Hello");
+//     // printf("%7s\n", "Hello");
+//     // printf("%5.3s\n", "Hello");
+//     // printf("%-5.3s\n", "Hello");
+//     // printf("%5.7s\n", "Hello");
+//     // printf("%7.7s\n", "Hello");
+//     // printf("%-5s\n", "Hello");
+//     // printf("-----------------------------\n");
+//     // ft_printf("%s\n", "Hello");
+//     // ft_printf("%7s\n", "Hello");
+//     // ft_printf("%5.3s\n", "Hello");
+//     // ft_printf("%-5.3s\n", "Hello");
+//     // ft_printf("%5.7s\n", "Hello");
+//     // ft_printf("%7.7s\n", "Hello");
+//     // ft_printf("%-5s\n", "Hello");
+    
+//     // printf("+++++++++++++++++++++++++++++\n");
+//     // printf("%05.2d\n", -2);
+//     // printf("%05.d\n", -2);
+//     // printf("%5d\n", -20);
+//     // printf("%05.10d\n", -211110);
+//     // printf("%10.5d\n", -211110);
+//     // printf("%.5d\n", 20);
+//     // printf("%-5d\n", 20);
+//     // printf("%+05d\n", 0);
+//     // printf("%+010.5d\n", 20);
+//     // printf("%010.5d\n", 20);
+//     // printf("% d\n", -20);
+//     // printf("%  d\n", 20);
+//     // printf("-----------------------------\n");
+//     // ft_printf("%05.2d\n", -2);
+//     // ft_printf("%05.d\n", -2);
+//     // ft_printf("%5d\n", -20);
+//     // ft_printf("%05.10d\n", -211110);
+//     // ft_printf("%10.5d\n", -211110);
+//     // ft_printf("%.5d\n", 20);
+//     // ft_printf("%-5d\n", 20);
+//     // ft_printf("%+05d\n", 0);
+//     // ft_printf("%+010.5d\n", 20);
+//     // ft_printf("%010.5d\n", 20);
+//     // ft_printf("% d\n", -20);
+//     // ft_printf("%  d\n", 20);
+
+//     // printf("+++++++++++++++++++++++++++++\n");
+//     // int a = 2;
+//     // printf("%p\n", &a);
+//     // printf("%-3.p\n", &a);
+//     // printf("%30p\n", &a);
+//     // printf("%-5p\n", &a);
+//     // printf("-----------------------------\n");
+//     // ft_printf("%p\n", &a);
+//     // ft_printf("%-3.p\n", &a);
+//     // ft_printf("%30p\n", &a);
+//     // ft_printf("%-5p\n", &a);
+
+//     // printf("+++++++++++++++++++++++++++++\n");
+//     // printf("%05u\n", 2);
+//     // printf("%05.u\n", 2);
+//     // printf("%5u\n", 20);
+//     // printf("%.12u\n", -3);
+//     // printf("%10.5u\n", 211110);
+//     // printf("%.5u\n", 20);
+//     // printf("%-5u\n", 20);
+//     // printf("%010.5u\n", 20);
+//     // printf("-----------------------------\n");
+//     // ft_printf("%05u\n", 2);
+//     // ft_printf("%05.u\n", 2);
+//     // ft_printf("%5u\n", 20);
+//     // ft_printf("%.12u\n", -3);
+//     // ft_printf("%10.5u\n", 211110);
+//     // ft_printf("%.5u\n", 20);
+//     // ft_printf("%-5u\n", 20);
+//     // ft_printf("%010.5u\n", 20);
+
+//     // printf("+++++++++++++++++++++++++++++\n");
+//     // printf("%x\n", 0);
+//     // printf("%5x\n", 20);
+//     // printf("%5.3x\n", 20);
+//     // printf("%5.7x\n", 20);
+//     // printf("%05.3x\n", 20);
+//     // printf("%-5x\n", 20);
+//     // printf("%#5x\n", 20);
+//     // printf("%05x\n", 20);
+//     // printf("%#05.3x\n", 20);
+//     // printf("%#5.3x\n", 20);
+//     // printf("%#5.x\n", 20);
+//     // printf("%#5.x\n", 20000);
+//     // printf("-----------------------------\n");
+//     // ft_printf("%x\n", 0);
+//     // ft_printf("%5x\n", 20);
+//     // ft_printf("%5.3x\n", 20);
+//     // ft_printf("%5.7x\n", 20);
+//     // ft_printf("%05.3x\n", 20);
+//     // ft_printf("%-5x\n", 20);
+//     // ft_printf("%#5x\n", 20);
+//     // ft_printf("%05x\n", 20);
+//     // ft_printf("%#05.3x\n", 20);
+//     // ft_printf("%#5.3x\n", 20);
+//     // ft_printf("%#5.x\n", 20);
+//     // ft_printf("%#5.x\n", 20000);
+
+//     // printf("%d\n", printf(" NULL %s NULL \n", NULL));
+//     // ft_printf(" NULL %s NULL \n", NULL);
+//     // printf(" %#lx \n", LONG_MIN);
+//     // printf(" %#x \n", INT_MIN);
+//     // ft_printf(" %#x \n", INT_MIN);
+//     // ft_printf(" %#x \n", LONG_MIN);
+    
+//     // printf("%d\n", printf(" %-2d \n", -1));
+//     // printf("%d\n", ft_printf(" %-2d \n", -1));
+
+//     // printf("%01.X\n", 0);
+//     // ft_printf("%01.X\n", 0);
+
+//     // printf("%03.0u\n", 0);
+//     // ft_printf("%03.0u\n", 0);
+//     char *null_str = 0; 
+//     printf("%7s\n", null_str);
+//     ft_printf("%7s\n", null_str);
+//     return (0);
+// }

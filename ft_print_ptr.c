@@ -1,6 +1,6 @@
 #include "ft_printf.h"
 
-static int	numlen(unsigned int n)
+static int	numlen(unsigned long long n)
 {
 	int	count;
 
@@ -13,20 +13,24 @@ static int	numlen(unsigned int n)
 	while (n != 0)
 	{
 		count++;
-		n /= 10;
+		n /= 16;
 	}
 	return (count);
 }
 
-char	*ft_utoa(unsigned int n)
+char	*ft_htoa(unsigned long long n, int i)
 {
 	int		len;
 	char	*str;
 	int		start;
+    char    *hex;
 
-	if (n == 0)
+    if (n == 0)
 		return (ft_strdup("0"));
 	len = numlen(n);
+    hex = "0123456789abcdef";
+    if (i == 'X')
+        hex = "0123456789ABCDEF";
 	str = (char *)malloc(sizeof(char) * (len + 1));
 	if (!str)
 		return (0);
@@ -34,87 +38,56 @@ char	*ft_utoa(unsigned int n)
 	start = 0;
 	while (--len >= start)
 	{
-		str[len] = n % 10 + '0';
-		n = n / 10;
+		str[len] = hex[(int) (n % 16)];
+		n = n / 16;
 	}
 	return (str);
 }
 
-int ft_print_int(int i, t_flags flag)
+int ft_print_ptr(void *i, t_flags flag)
 {
     int     len;
-    char    *ptr;
     char    *str;
-    char    symbol;
 
     len = 0;
-    symbol = 0;
-    if (i == 0 && flag.precision == 0)
-        ptr = ft_strdup("");
-    else
-        ptr = ft_itoa(i);
-    str = ptr;
-    if (flag.space)
-        symbol = ' ';
-    if (flag.plus)
-        symbol = '+';
-    if (i < 0)
-    {
-        str++;
-        symbol = '-';
-    }
-    if (!flag.dot || flag.precision < (int) ft_strlen(str))
-        flag.precision = (int) ft_strlen(str);
-    flag.width -= flag.precision;
-    flag.precision -= (int) ft_strlen(str);
-    if (symbol)
-        flag.width--;
+    str = ft_htoa((unsigned long long) i, flag.type);
+    flag.width -= ((int) ft_strlen(str) + 2);
     if (!flag.left)
     {
-        if (flag.zero)
-        {
-            if (flag.dot)
-                len += ft_putpad_len(' ', flag.width);
-            if (symbol)
-                len += ft_putchar_len(symbol);
-            if (flag.dot)
-                len += ft_putpad_len('0', flag.precision);
-            else
-                len += ft_putpad_len('0', flag.width);
-        }
-        else
-        {
-            len += ft_putpad_len(' ', flag.width);
-            if (symbol)
-                len += ft_putchar_len(symbol);
-            if (flag.dot)
-                len += ft_putpad_len('0', flag.precision);
-        }
+        len += ft_putpad_len(' ', flag.width);
+        len += ft_putstr_len("0x");
         len += ft_putstr_len(str);
     }
     else
     {
-        if (symbol)
-            len += ft_putchar_len(symbol);
-        if (flag.dot)
-            len += ft_putpad_len('0', flag.precision);
+        len += ft_putstr_len("0x");
         len += ft_putstr_len(str);
         len += ft_putpad_len(' ', flag.width);
     }
-    free(ptr);
+    free(str);
     return (len);
 }
 
-int ft_print_uint(unsigned int i, t_flags flag)
+int ft_print_hex(unsigned int i, t_flags flag)
 {
     int     len;
     char    *str;
+    char    *hash;
 
     len = 0;
+    hash = "";
     if (i == 0 && flag.precision == 0)
         str = ft_strdup("");
     else
-        str = ft_utoa(i);
+        str = ft_htoa((unsigned long long) i, flag.type);
+    if (flag.hash && i != 0)
+    {
+        flag.width -= 2;
+        if (flag.type == 'X')
+            hash = "0X";
+        else
+            hash = "0x";
+    }
     if (!flag.dot || flag.precision < (int) ft_strlen(str))
         flag.precision = (int) ft_strlen(str);
     flag.width -= flag.precision;
@@ -125,6 +98,7 @@ int ft_print_uint(unsigned int i, t_flags flag)
         {
             if (flag.dot)
                 len += ft_putpad_len(' ', flag.width);
+                len += ft_putstr_len(hash);
             if (flag.dot)
                 len += ft_putpad_len('0', flag.precision);
             else
@@ -133,6 +107,7 @@ int ft_print_uint(unsigned int i, t_flags flag)
         else
         {
             len += ft_putpad_len(' ', flag.width);
+                len += ft_putstr_len(hash);
             if (flag.dot)
                 len += ft_putpad_len('0', flag.precision);
         }

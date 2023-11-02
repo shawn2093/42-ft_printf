@@ -2,7 +2,7 @@ NAME = libftprintf.a
 CC = gcc
 AR = ar -rc
 RM = rm -f
-SRCS = ft_printf.c
+SRCS = ft_printf.c ft_print_int.c ft_print_ptr.c ft_print_str.c
 LIBFT_PATH = ./libft/
 LIBFT = $(LIBFT_PATH)libft.a
 CFLAGS = -Wall -Wextra -Werror
@@ -22,6 +22,8 @@ $(NAME): $(OBJS) $(LIBFT)
 $(LIBFT):
 	make -C $(LIBFT_PATH) bonus
 
+bonus: all
+
 clean:
 	$(RM) $(OBJS)
 
@@ -31,4 +33,4 @@ fclean: clean
 
 re: fclean all
 
-.PHONY: all clean fclean re
+.PHONY: all clean fclean re bonus

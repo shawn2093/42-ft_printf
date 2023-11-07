@@ -6,7 +6,7 @@
 /*   By: long <long@student.42kl.edu.my>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/02 22:01:08 by long              #+#    #+#             */
-/*   Updated: 2023/11/03 01:51:11 by long             ###   ########.fr       */
+/*   Updated: 2023/11/08 05:40:05 by long             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,13 +23,17 @@ int	ft_print_ptr(void *i, t_flags flag)
 	if (!flag.left)
 	{
 		len += ft_putpad_len(' ', flag.width);
-		len += ft_putstr_len("0x");
-		len += ft_putstr_len(str);
+		if ((unsigned long long)i == 0)
+			len += ft_putstr_len(PTRNULL);
+		else
+			len += (ft_putstr_len("0x") + ft_putstr_len(str));
 	}
 	else
 	{
-		len += ft_putstr_len("0x");
-		len += ft_putstr_len(str);
+		if ((unsigned long long)i == 0)
+			len += ft_putstr_len(PTRNULL);
+		else
+			len += (ft_putstr_len("0x") + ft_putstr_len(str));
 		len += ft_putpad_len(' ', flag.width);
 	}
 	free(str);

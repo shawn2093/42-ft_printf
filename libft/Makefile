@@ -2,7 +2,7 @@ NAME = libft.a
 CC = gcc
 AR = ar -rc
 RM = rm -f
-SRCS_DIR = ./
+SRCS_DIR = srcs/
 SRCS_FIL = ft_atoi.c ft_bzero.c ft_calloc.c ft_isalpha.c ft_isalnum.c \
 			ft_isdigit.c ft_isascii.c ft_isprint.c ft_memchr.c ft_memcmp.c \
 			ft_memcpy.c ft_memmove.c ft_memset.c ft_strchr.c ft_strdup.c \
@@ -16,7 +16,7 @@ BONS_FIL = ft_lstnew.c ft_lstadd_front.c ft_lstsize.c ft_lstlast.c ft_lstadd_bac
 SRCS := $(addprefix $(SRCS_DIR), $(SRCS_FIL))
 BONUS := $(addprefix $(SRCS_DIR), $(BONS_FIL))
 
-HEADER = ./
+HEADER = ./includes/
 CFLAGS = -Wall -Wextra -Werror
 OPTION = -I $(HEADER)
 

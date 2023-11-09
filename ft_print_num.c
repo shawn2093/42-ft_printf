@@ -6,7 +6,7 @@
 /*   By: long <long@student.42kl.edu.my>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/02 22:01:08 by long              #+#    #+#             */
-/*   Updated: 2023/11/08 05:40:05 by long             ###   ########.fr       */
+/*   Updated: 2023/11/09 18:52:33 by long             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -47,9 +47,7 @@ static int	ft_printuxid_helper(char *str, char *icon, t_flags flag)
 	len = 0;
 	if (!flag.dot || flag.precision < (int)ft_strlen(str))
 		flag.precision = (int)ft_strlen(str);
-	flag.width -= flag.precision;
-	if (flag.type == 'i' || flag.type == 'd')
-		flag.width -= (int)ft_strlen(icon);
+	flag.width -= (flag.precision + (int)ft_strlen(icon));
 	flag.precision -= (int)ft_strlen(str);
 	if (!flag.left)
 	{
@@ -58,7 +56,7 @@ static int	ft_printuxid_helper(char *str, char *icon, t_flags flag)
 		else
 			len += (ft_putpad_len(' ', flag.width) + ft_putstr_len(icon));
 	}
-	if (flag.left && (flag.type == 'i' || flag.type == 'd'))
+	if (flag.left)
 		len += ft_putstr_len(icon);
 	if (flag.dot)
 		len += ft_putpad_len('0', flag.precision);
@@ -80,7 +78,6 @@ int	ft_print_ux(unsigned int i, t_flags flag)
 		str = ft_htoa((unsigned long long)i, flag.type);
 	if (flag.hash && i != 0 && (flag.type == 'X' || flag.type == 'x'))
 	{
-		flag.width -= 2;
 		if (flag.type == 'X')
 			hash = "0X";
 		else
